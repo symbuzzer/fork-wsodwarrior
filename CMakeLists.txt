@@ -26,7 +26,7 @@ set(GCC_COMN_DEFS -D__SYMBIAN32__ -D__GCC32__ -D__EPOC32__ -D__MARM__ -D__MARM_A
 set(GCC_MODE_DEFS -DNDEBUG -D_UNICODE)
 set(GCC_DEFS      ${GCC_COMN_DEFS} ${GCC_MODE_DEFS})
 
-set(commwarrior_libs
+set(wsodwarrior_libs
   ${EPOC_PLATFORM}/gcc/lib/gcc-lib/arm-epoc-pe/2.9-psion-98r2/libgcc.a
   ${EPOC_LIB}/egcc.lib
   ${EPOC_LIB}/euser.lib
@@ -37,22 +37,22 @@ set(commwarrior_libs
 
 set(SRC_DIR "${CMAKE_CURRENT_SOURCE_DIR}/src")
 
-add_library(commwarrior STATIC ${project_sources})
+add_library(wsodwarrior STATIC ${project_sources})
 
-build_exe(commwarrior exe ${UID1} ${UID2} ${UID3} "${commwarrior_libs}")
+build_exe(wsodwarrior exe ${UID1} ${UID2} ${UID3} "${wsodwarrior_libs}")
 
 copy_file(
-    commwarrior.exe
+    wsodwarrior.exe
     ${CMAKE_CURRENT_BINARY_DIR}
     "${CMAKE_CURRENT_SOURCE_DIR}/mmc/system/updates"
-    "commwarrior.exe")
+    "wsodwarrior.exe")
 
 add_dependencies(
-    commwarrior.exe
-    commwarrior)
+    wsodwarrior.exe
+    wsodwarrior)
 
 target_compile_definitions(
-    commwarrior
+    wsodwarrior
     PUBLIC
     __EXE__
     FUNCTION_NAME=__FUNCTION__
@@ -62,12 +62,12 @@ target_compile_definitions(
     UID3=${UID3})
 
 target_compile_options(
-    commwarrior
+    wsodwarrior
     PUBLIC
     -Wall
     -O3)
 
 target_include_directories(
-    commwarrior
+    wsodwarrior
     PUBLIC
     ${SRC_DIR})
