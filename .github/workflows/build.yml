@@ -13,24 +13,20 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    # 1. Depoyu klonla
     - name: Checkout code
       uses: actions/checkout@v3
 
-    # 2. Gereksinimleri yükle
     - name: Install dependencies
       run: |
         sudo apt-get update
         sudo apt-get install -y cmake ninja-build gcc g++ git
 
-    # 3. N-Gage SDK'yı indir ve yapılandır
     - name: Clone and set up N-Gage SDK
       run: |
         git clone https://github.com/ngagesdk/ngage-toolchain.git /home/runner/ngage-toolchain
       env:
         NGAGESDK: /home/runner/ngage-toolchain
 
-    # 4. Build dizinini oluştur ve CMake ile yapılandır
     - name: Configure CMake
       env:
         NGAGESDK: /home/runner/ngage-toolchain
@@ -40,15 +36,16 @@ jobs:
         cmake .. \
           -DCMAKE_BUILD_TYPE=Release \
           -DCMAKE_TOOLCHAIN_FILE=${NGAGESDK}/cmake/ngage-toolchain.cmake \
-          -G Ninja
+          -DCMAKE_C_COMPILER=/usr/bin/gcc \
+          -DCMAKE_CXX_COMPILER=/usr/bin/g++
 
-    # 5. Projeyi derle
     - name: Build the project
       run: |
         cd build
         cmake --build . --verbose
+      env:
+        NGAGESDK: /home/runner/ngage-toolchain
 
-    # 6. Derleme çıktısını kontrol et
     - name: Verify built files
       run: |
         ls -al build/mmc/system/updates
