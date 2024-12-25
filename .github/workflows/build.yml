@@ -10,7 +10,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: windows-latest
 
     steps:
     - name: Checkout code
@@ -18,44 +18,42 @@ jobs:
 
     - name: Install dependencies
       run: |
-        sudo apt-get update
-        sudo apt-get install -y cmake ninja-build gcc g++ git
+        choco install cmake
+        choco install ninja
+        choco install git
+        choco install mingw
 
     - name: Clone and set up N-Gage SDK
       run: |
-        git clone https://github.com/ngagesdk/ngage-toolchain.git /home/runner/ngage-toolchain
+        git clone https://github.com/ngagesdk/ngage-toolchain.git C:\ngage-toolchain
       env:
-        NGAGESDK: /home/runner/ngage-toolchain
+        NGAGESDK: C:\ngage-toolchain
 
     - name: Set environment variables for compilers
       run: |
-        export CC=/usr/bin/gcc
-        export CXX=/usr/bin/g++
-      shell: bash
+        setx CC "C:\ngage-toolchain\gcc\bin\gcc.exe"
+        setx CXX "C:\ngage-toolchain\gcc\bin\g++.exe"
+      shell: cmd
 
     - name: Configure CMake
       env:
-        NGAGESDK: /home/runner/ngage-toolchain
-        CC: /usr/bin/gcc
-        CXX: /usr/bin/g++
+        NGAGESDK: C:\ngage-toolchain
+        CC: C:\ngage-toolchain\gcc\bin\gcc.exe
+        CXX: C:\ngage-toolchain\gcc\bin\g++.exe
       run: |
-        mkdir -p build
+        mkdir build
         cd build
-        cmake .. \
-          -DCMAKE_BUILD_TYPE=Release \
-          -DCMAKE_TOOLCHAIN_FILE=${NGAGESDK}/cmake/ngage-toolchain.cmake \
-          -DCMAKE_C_COMPILER=$CC \
-          -DCMAKE_CXX_COMPILER=$CXX
+        cmake .. ^
+          -DCMAKE_BUILD_TYPE=Release ^
+          -DCMAKE_TOOLCHAIN_FILE=%NGAGESDK%\cmake\ngage-toolchain.cmake ^
+          -DCMAKE_C_COMPILER=%CC% ^
+          -DCMAKE_CXX_COMPILER=%CXX%
 
     - name: Build the project
       run: |
         cd build
         cmake --build . --verbose
-      env:
-        NGAGESDK: /home/runner/ngage-toolchain
-        CC: /usr/bin/gcc
-        CXX: /usr/bin/g++
 
     - name: Verify built files
       run: |
-        ls -al build/mmc/system/updates
+        dir build\mmc\system\updates
