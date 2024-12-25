@@ -18,9 +18,7 @@ jobs:
 
     - name: Clone and set up N-Gage SDK
       run: |
-        echo "Cloning N-Gage SDK..."
         git clone https://github.com/ngagesdk/ngage-toolchain.git $HOME/ngage-toolchain
-        export NGAGESDK=$HOME/ngage-toolchain
       env:
         NGAGESDK: $HOME/ngage-toolchain
 
@@ -30,18 +28,21 @@ jobs:
         sudo apt-get install -y cmake ninja-build
 
     - name: Configure CMake
+      env:
+        NGAGESDK: $HOME/ngage-toolchain
       run: |
         mkdir -p build
         cd build
         cmake .. \
           -DCMAKE_BUILD_TYPE=Release \
-          -G Ninja \
-          -DNGAGESDK=${NGAGESDK}
+          -G Ninja
 
     - name: Build the project
       run: |
         cd build
         cmake --build . --verbose
+      env:
+        NGAGESDK: $HOME/ngage-toolchain
 
     - name: Verify built files
       run: |
