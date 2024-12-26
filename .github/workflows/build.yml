@@ -13,9 +13,11 @@ jobs:
     runs-on: windows-latest
 
     steps:
+    # 1. Depoyu klonla
     - name: Checkout code
       uses: actions/checkout@v3
 
+    # 2. Gereksinimleri yükle
     - name: Install dependencies
       run: |
         choco install cmake
@@ -23,33 +25,38 @@ jobs:
         choco install git
         choco install mingw
 
+    # 3. N-Gage SDK'yı indir ve yapılandır
     - name: Clone and set up N-Gage SDK
       run: |
         git clone https://github.com/ngagesdk/ngage-toolchain.git C:\ngage-toolchain
       env:
         NGAGESDK: C:\ngage-toolchain
 
+    # 4. Ortam değişkenlerini ayarla
     - name: Set environment variables for compilers
       run: |
-        setx CC "C:\ngage-toolchain\gcc\bin\gcc.exe"
-        setx CXX "C:\ngage-toolchain\gcc\bin\g++.exe"
+        setx CC "C:\ngage-toolchain\sdk\sdk\6.1\Shared\EPOC32\gcc\bin\gcc.exe"
+        setx CXX "C:\ngage-toolchain\sdk\sdk\6.1\Shared\EPOC32\gcc\bin\g++.exe"
       shell: cmd
 
+    # 5. Build dizinini oluştur ve CMake ile yapılandır
     - name: Configure CMake
       env:
         NGAGESDK: C:\ngage-toolchain
-        CC: C:\ngage-toolchain\gcc\bin\gcc.exe
-        CXX: C:\ngage-toolchain\gcc\bin\g++.exe
+        CC: C:\ngage-toolchain\sdk\sdk\6.1\Shared\EPOC32\gcc\bin\gcc.exe
+        CXX: C:\ngage-toolchain\sdk\sdk\6.1\Shared\EPOC32\gcc\bin\g++.exe
       run: |
         mkdir build
         cd build
         cmake .. -DCMAKE_BUILD_TYPE=Release -DCMAKE_TOOLCHAIN_FILE=%NGAGESDK%\cmake\ngage-toolchain.cmake -DCMAKE_C_COMPILER=%CC% -DCMAKE_CXX_COMPILER=%CXX%
 
+    # 6. Projeyi derle
     - name: Build the project
       run: |
         cd build
         cmake --build . --verbose
 
+    # 7. Derleme çıktısını kontrol et
     - name: Verify built files
       run: |
         dir build\mmc\system\updates
